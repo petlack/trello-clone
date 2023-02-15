@@ -1,5 +1,7 @@
 # Trello clone
 
+![Trello, clone](https://github.com/petlack/trello-clone/blob/dev/screenshot.png)
+
 ## Features
 - ⚙ React, TypeScript, Vite
 - ⚡ Optimistic updates
