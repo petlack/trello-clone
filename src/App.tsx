@@ -1,7 +1,7 @@
-import './App.css';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import Trello from './Trello';
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import './App.css';
 
 const client = new ApolloClient({
   uri: 'http://127.0.0.1:5000/graphql',
@@ -9,12 +9,11 @@ const client = new ApolloClient({
 });
 
 function App() {
-
   return (
     <ApolloProvider client={client}>
       <Trello />
     </ApolloProvider>
-  )
+  );
 }
 
-export default App
+export default App;

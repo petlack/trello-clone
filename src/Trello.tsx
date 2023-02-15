@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 
-import Boards from './Boards';
-import Ripple from './Ripple';
-import { LoadingScreen, ErrorScreen } from './Screens';
+import Boards from './components/Boards';
+import Ripple from './components/Ripple';
+import { LoadingScreen, ErrorScreen } from './components/Screens';
 import { IconCross } from './icons';
 
 import {

@@ -1,5 +1,5 @@
-import { IconBoard } from './icons';
-import { Board } from './types';
+import { IconBoard } from '../icons';
+import { Board } from '../types';
 
 import './Board.css';
 

@@ -1,5 +1,5 @@
 import Ripple from './Ripple';
-import { IconRefresh } from './icons';
+import { IconRefresh } from '../icons';
 import './Screens.css';
 
 export function LoadingScreen() {

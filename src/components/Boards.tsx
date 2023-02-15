@@ -4,9 +4,9 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import TaskComponent from './Task';
 import BoardComponent from './Board';
 import NewTask from './NewTask';
-import { IconPlusDotted } from './icons';
+import { IconPlusDotted } from '../icons';
 
-import { Board, Task, CreateTaskArgs, MoveTaskArgs, DeleteTaskArgs, CreateBoardArgs } from './types';
+import { Board, Task, CreateTaskArgs, MoveTaskArgs, DeleteTaskArgs, CreateBoardArgs } from '../types';
 
 import './Boards.css';
 

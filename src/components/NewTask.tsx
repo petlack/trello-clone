@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconPlusCircleFill } from './icons';
+import { IconPlusCircleFill } from '../icons';
 
 import './NewTask.css';
 

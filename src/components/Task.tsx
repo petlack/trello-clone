@@ -1,6 +1,6 @@
 import { CSSProperties, LegacyRef } from 'react';
-import { IconCross } from './icons';
-import { Task } from './types';
+import { IconCross } from '../icons';
+import { Task } from '../types';
 
 import './Task.css';
 
