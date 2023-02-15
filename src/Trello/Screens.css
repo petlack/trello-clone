@@ -1,0 +1,31 @@
+.app.screen {
+  display: grid;
+  place-items: center;
+  gap: var(--gap-medium);
+  align-content: center;
+}
+
+.app.screen .ripple {
+  width: 320px;
+  height: 320px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-medium);
+  padding: var(--gap-medium);
+  border-radius: 8px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  background-color: var(--clr-bw-100);
+  color: var(--clr-bw-900);
+}
+
+.refresh {
+  cursor: pointer;
+}
+
+.refresh svg {
+  width: 64px;
+  height: 64px;
+}
