@@ -1,0 +1,28 @@
+.board {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--gap-small);
+  gap: var(--gap-small);
+  background-color: var(--clr-bw-700);
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.header {
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap-small);
+}
+
+.header svg {
+  color: var(--clr-bw-400);
+}
+
+.header h3 {
+  font-size: var(--font-sz-regular);
+  line-height: 16px;
+}

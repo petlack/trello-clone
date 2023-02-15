@@ -1,32 +1,44 @@
 import { useEffect, useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult, DraggableLocation } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
-import { IconBoard, IconCross, IconPlusCircleFill, IconPlusDotted } from './icons';
+import TaskComponent from './Task';
+import BoardComponent from './Board';
+import NewTask from './NewTask';
+import { IconPlusDotted } from './icons';
 
-import { Board, Task, CreateTaskArgs, MoveTaskArgs, DeleteTaskArgs, CreateBoardArgs } from './types'
+import { Board, Task, CreateTaskArgs, MoveTaskArgs, DeleteTaskArgs, CreateBoardArgs } from './types';
 
 import './Boards.css';
 
-function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
+function reorder(tasks: TasksData, srcBoard: string, startIndex: number, endIndex: number) {
+  const list = tasks[srcBoard];
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
-  return result;
-};
+  const newTasks = {...tasks};
+  newTasks[srcBoard] = result;
+  return newTasks;
+}
 
-function move<T>(source: T[], destination: T[], droppableSource: DraggableLocation, droppableDestination: DraggableLocation) {
+function move(tasks: TasksData, srcBoard: string, dstBoard: string, srcIndex: number, dstIndex: number) {
+  const source = tasks[srcBoard];
+  const destination = tasks[dstBoard];
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
+  const [removed] = sourceClone.splice(srcIndex, 1);
 
-  destClone.splice(droppableDestination.index, 0, removed);
+  destClone.splice(dstIndex, 0, removed);
 
-  const result: { [key: string]: T[] } = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
+  const result: TasksData = {};
+  result[srcBoard] = sourceClone;
+  result[dstBoard] = destClone;
 
-  return result;
-};
+  let newTasks = {...tasks};
+  newTasks[srcBoard] = result[srcBoard];
+  newTasks[dstBoard] = result[dstBoard];
+
+  return newTasks;
+}
 
 function getInitialBoards(data: Board[]): BoardsData {
   return data.reduce((res, item) => ({
@@ -42,16 +54,8 @@ function getInitialTasks(data: Board[]): TasksData {
   }), {});
 }
 
-function getInitialNewTasks(data: Board[]): NewTasksData {
-  return data.reduce((res, item) => ({
-    ...res,
-    [item.id]: '',
-  }), {});
-}
-
 type BoardsData = { [key: string]: Board }
 type TasksData = { [key: string]: Task[] }
-type NewTasksData = { [key: string]: string }
 
 export type BoardsProps = {
   data: Board[]
@@ -65,165 +69,143 @@ export type BoardsProps = {
 function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard }: BoardsProps) {
   const initialBoards = getInitialBoards(data);
   const initialTasks = getInitialTasks(data);
-  const initialNewTasks = getInitialNewTasks(data);
   
   const [tasks, setTasks] = useState(initialTasks)
   const [boards, setBoards] = useState(initialBoards)
-  const [newTasks, setNewTasks] = useState(initialNewTasks)
 
   useEffect(() => {
     setTasks(getInitialTasks(data));
     setBoards(getInitialBoards(data));
-    setNewTasks(getInitialNewTasks(data));
   }, [data, timestamp]);
 
-  const id2column = Object.keys(tasks);
+  const idx2board = Object.keys(boards);
 
   function addTask({ boardId, description, badge }: CreateTaskArgs) {
     const newState = { ...tasks };
-    const newTask = { id: '__', boardId, description, badge, position: boards[boardId].tasks.length }
-    newState[boardId] = [...newState[boardId], newTask]
-    setTasks(newState)
+    const newTask = {
+      id: '__',
+      boardId,
+      description,
+      badge,
+      position: boards[boardId].tasks.length,
+    };
+    newState[boardId] = [...newState[boardId], newTask];
+    setTasks(newState);
     createTask({
       boardId,
       description,
       badge,
-    })
-    setNewTasks({
-      ...newTasks,
-      [boardId]: '',
-    })
+    });
   }
 
-  function submitTask(columnKey: string) {
+  function submitTask(boardId: string, value: string) {
     addTask({
-      boardId: columnKey,
-      description: newTasks[columnKey],
-    })
+      boardId: boardId,
+      description: value,
+    });
   }
 
-  function removeTask(ind: number, index: number, taskId: string) {
+  function removeTask(boardIdx: number, taskIdx: number, taskId: string) {
     const newState = {...tasks};
-    newState[id2column[ind]].splice(index, 1);
+    newState[idx2board[boardIdx]].splice(taskIdx, 1);
     setTasks(newState);
-    deleteTask({ taskId })
-  };
+    deleteTask({ taskId });
+  }
 
   function onDragEnd(result: DropResult) {
     let { source, destination, draggableId } = result;
 
-    // dropped outside the list
     if (!destination) {
       return;
     }
-    const srcColumn = id2column[+source.droppableId];
-    const dstColumn = id2column[+destination.droppableId];
+    const srcBoard = idx2board[+source.droppableId];
+    const dstBoard = idx2board[+destination.droppableId];
 
-    source = { ...source, droppableId: srcColumn }
-    destination = { ...destination, droppableId: dstColumn }
+    if (srcBoard === dstBoard && source.index === destination.index) {
+      return;
+    }
+    
+    let newTasks: TasksData = tasks;
 
-    if (srcColumn === dstColumn) {
-      const items = reorder(tasks[srcColumn], source.index, destination.index);
-      const newState = {...tasks};
-      newState[srcColumn] = items;
-      setTasks(newState);
-    } else {
-      const result = move(
-        tasks[srcColumn],
-        tasks[dstColumn],
-        source,
-        destination,
+    if (srcBoard === dstBoard) {
+      newTasks = reorder(
+        tasks,
+        srcBoard,
+        source.index,
+        destination.index,
       );
-      const newState = {...tasks};
-      newState[srcColumn] = result[srcColumn];
-      newState[dstColumn] = result[dstColumn];
-      setTasks(newState);
+    }
+    else {
+      newTasks = move(
+        tasks,
+        srcBoard,
+        dstBoard,
+        source.index,
+        destination.index,
+      );
     }
 
+    setTasks(newTasks);
     moveTask({
-      boardId: dstColumn,
+      boardId: dstBoard,
       taskId: draggableId,
       position: destination.index,
-    })
+    });
   }
 
   function addBoard() {
-    const newColumn = `column-${Object.keys(boards).length}`;
-    const newTasks: TasksData = { ...tasks, [newColumn]: [] };
-    const newBoards: BoardsData = { ...boards, [newColumn]: { id: '__', title: 'Column', tasks: [] } };
+    const boardName = `board-${Object.keys(boards).length}`;
+    const newTasks = { ...tasks, [boardName]: [] };
+    const board = { id: '__', title: boardName, tasks: [] };
+    const newBoards = { ...boards, [boardName]: board };
     setBoards(newBoards);
     setTasks(newTasks);
-    createBoard({ title: newColumn });
+    createBoard({ title: boardName });
   }
 
   return (
     <div className="app boards">
       <DragDropContext onDragEnd={onDragEnd}>
-        {Object.keys(tasks).map((columnKey, ind) => (
-          <Droppable key={ind} droppableId={`${ind}`}>
+        {idx2board.map((boardId, boardIdx) => (
+          <Droppable key={boardIdx} droppableId={`${boardIdx}`}>
             {(provided, snapshot) => (
-              <div className="board">
-                <div className="header">
-                  <div className="icon xsmall">{IconBoard}</div>
-                  <h3>{boards[columnKey].title}</h3>
-                </div>
+              <BoardComponent
+                board={boards[boardId]}
+              >
                 <div
                   ref={provided.innerRef}
                   className={`tasks ${snapshot.isDraggingOver ? 'is-over' : ''}`}
                   {...provided.droppableProps}
                 >
-                  {tasks[columnKey].map((item, index) => (
+                  {tasks[boardId].map((task, taskIdx) => (
                     <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
+                      key={task.id}
+                      draggableId={task.id}
+                      index={taskIdx}
                     >
                       {(provided, snapshot) => (
-                        <div
-                          className={`task ${snapshot.isDragging ? 'is-dragging' : ''}`}
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={provided.draggableProps.style}
-                        >
-                          <span className="description">
-                            {item.description}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeTask(ind, index, item.id)}
-                          >
-                            {IconCross}
-                          </button>
-                        </div>
+                        <TaskComponent
+                          task={task}
+                          divClassName={snapshot.isDragging ? 'is-dragging' : ''}
+                          divStyle={provided.draggableProps.style}
+                          divRef={provided.innerRef}
+                          divProps={{ ...provided.draggableProps, ...provided.dragHandleProps }}
+                          remove={() => removeTask(boardIdx, taskIdx, task.id)}
+                        />
                       )}
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  <div className="new-task">
-                    <input
-                      type="text"
-                      value={newTasks[columnKey]}
-                      placeholder="Add task"
-                      onChange={e => setNewTasks({
-                        ...newTasks,
-                        [columnKey]: e.target.value,
-                      })}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          submitTask(columnKey)
-                        }
-                      }}
-                    />
-                    <button type="button" onClick={() => submitTask(columnKey)}><div className="icon small">{IconPlusCircleFill}</div></button>
-                  </div>
+                  <NewTask
+                    submit={(value: string) => submitTask(boardId, value)}
+                  />
                 </div>
-              </div>
+              </BoardComponent>
             )}
           </Droppable>
         ))}
       </DragDropContext>
-      <div className="board half">
+      <div className="new-board">
         <div className="icon large" onClick={addBoard}>
           {IconPlusDotted}
         </div>
@@ -231,4 +213,5 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
     </div>
   );
 }
+
 export default Boards;

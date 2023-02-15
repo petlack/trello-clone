@@ -1,0 +1,27 @@
+.new-task {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap-small);
+  align-items: center;
+}
+
+.new-task input {
+  flex: 1;
+  border: none;
+  padding: var(--gap-small);
+  font-size: var(--font-sz-regular);
+  border-radius: 4px;
+}
+
+.new-task button {
+  background: none;
+  border: none;
+  color: var(--clr-bw-100);
+  cursor: pointer;
+}
+
+.new-task button:hover {
+  background: none;
+  border: none;
+  color: var(--clr-yellow-800);
+}

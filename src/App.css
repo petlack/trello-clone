@@ -52,6 +52,10 @@ input::placeholder {
   color: var(--clr-bw-500);
 }
 
+.icon.large svg { width: 48px; height: 48px; }
+.icon.small svg { width: 24px; height: 24px; }
+.icon.xsmall svg { width: 16px; height: 16px; }
+
 #root {
   width: 100vw;
   min-height: 100vh;
