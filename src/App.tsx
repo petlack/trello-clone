@@ -4,7 +4,7 @@ import Trello from './Trello';
 import './App.css';
 
 const client = new ApolloClient({
-  uri: 'http://127.0.0.1:5000/graphql',
+  uri: import.meta.env.VITE_API_URL,
   cache: new InMemoryCache(),
 });
 
