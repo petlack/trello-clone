@@ -95,6 +95,13 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
     })
   }
 
+  function submitTask(columnKey: string) {
+    addTask({
+      boardId: columnKey,
+      description: newTasks[columnKey],
+    })
+  }
+
   function removeTask(ind: number, index: number, taskId: string) {
     const newState = {...tasks};
     newState[id2column[ind]].splice(index, 1);
@@ -202,11 +209,13 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
                         ...newTasks,
                         [columnKey]: e.target.value,
                       })}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          submitTask(columnKey)
+                        }
+                      }}
                     />
-                    <button type="button" onClick={() => addTask({
-                      boardId: columnKey,
-                      description: newTasks[columnKey],
-                    })}><div className="icon small">{IconPlusCircleFill}</div></button>
+                    <button type="button" onClick={() => submitTask(columnKey)}><div className="icon small">{IconPlusCircleFill}</div></button>
                   </div>
                 </div>
               </div>
