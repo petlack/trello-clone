@@ -8,8 +8,12 @@
   transition: opacity 100ms ease-in;
 }
 
-.loading.visible { opacity: 1; }
-.loading.hidden { opacity: 0; }
+.loading.visible {
+  opacity: 1;
+}
+.loading.hidden {
+  opacity: 0;
+}
 
 .error {
   position: fixed;
@@ -25,8 +29,12 @@
   transition: transform 100ms ease-in;
 }
 
-.error.visible { transform: translateY(0); }
-.error.hidden { transform: translateY(150%); }
+.error.visible {
+  transform: translateY(0);
+}
+.error.hidden {
+  transform: translateY(150%);
+}
 
 .error .close {
   position: absolute;

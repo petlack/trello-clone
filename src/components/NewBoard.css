@@ -1,0 +1,26 @@
+.new-board {
+  flex: 0.25;
+  min-height: 200px;
+  max-width: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--clr-bw-300);
+  border-radius: 8px;
+  color: var(--clr-bw-400);
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 480px) {
+  .new-board {
+    flex: 1;
+    min-height: 72px;
+    height: 72px;
+    min-width: 240px;
+    max-width: 380px;
+  }
+}
+
+.new-board:hover {
+  color: var(--clr-bw-600);
+}

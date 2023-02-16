@@ -16,7 +16,7 @@ import {
 
 import { CreateBoardArgs, CreateTaskArgs, DeleteTaskArgs, MoveTaskArgs } from './types';
 
-import './Trello.css'
+import './Trello.css';
 
 function Trello() {
   const {
@@ -30,13 +30,11 @@ function Trello() {
   const refetchParams = {
     refetchQueries: [{ query: BOARDS_QUERY }, 'BoardsQuery'],
     awaitRefetchQueries: true,
-    onError: () => client.refetchQueries({ include: [BOARDS_QUERY] })
+    onError: () => client.refetchQueries({ include: [BOARDS_QUERY] }),
   };
 
-  const [
-    createBoardMutation,
-    { loading: createBoardLoading, error: createBoardError },
-  ] = useMutation(CREATE_BOARD_MUTATION);
+  const [createBoardMutation, { loading: createBoardLoading, error: createBoardError }] =
+    useMutation(CREATE_BOARD_MUTATION);
 
   function createBoard({ title }: CreateBoardArgs) {
     return createBoardMutation({
@@ -45,10 +43,8 @@ function Trello() {
     });
   }
 
-  const [
-    createTaskMutation,
-    { loading: createTaskLoading, error: createTaskError },
-  ] = useMutation(CREATE_TASK_MUTATION);
+  const [createTaskMutation, { loading: createTaskLoading, error: createTaskError }] =
+    useMutation(CREATE_TASK_MUTATION);
 
   function createTask({ boardId, description, badge }: CreateTaskArgs) {
     return createTaskMutation({
@@ -58,13 +54,11 @@ function Trello() {
         badge,
       },
       ...refetchParams,
-    })
+    });
   }
 
-  const [
-    moveTaskMutation,
-    { loading: moveTaskLoading, error: moveTaskError },
-  ] = useMutation(MOVE_TASK_MUTATION);
+  const [moveTaskMutation, { loading: moveTaskLoading, error: moveTaskError }] =
+    useMutation(MOVE_TASK_MUTATION);
 
   function moveTask({ boardId, taskId, position }: MoveTaskArgs) {
     return moveTaskMutation({
@@ -74,13 +68,11 @@ function Trello() {
         position,
       },
       ...refetchParams,
-    })
+    });
   }
 
-  const [
-    deleteTaskMutation,
-    { loading: deleteTaskLoading, error: deleteTaskError },
-  ] = useMutation(DELETE_TASK_MUTATION);
+  const [deleteTaskMutation, { loading: deleteTaskLoading, error: deleteTaskError }] =
+    useMutation(DELETE_TASK_MUTATION);
 
   function deleteTask({ taskId }: DeleteTaskArgs) {
     return deleteTaskMutation({
@@ -88,7 +80,7 @@ function Trello() {
         taskId,
       },
       ...refetchParams,
-    })
+    });
   }
 
   const anyLoading = !!(
@@ -97,25 +89,20 @@ function Trello() {
     moveTaskLoading ||
     deleteTaskLoading
   );
-  const anyError = !!(
-    createBoardError ||
-    createTaskError ||
-    moveTaskError ||
-    deleteTaskError
-  );
+  const anyError = !!(createBoardError || createTaskError || moveTaskError || deleteTaskError);
 
-  const [isError, setIsError] = useState(anyError)
+  const [isError, setIsError] = useState(anyError);
 
   useEffect(() => {
     setIsError(anyError);
   }, [anyError]);
 
   if (boardsLoading) {
-    return <LoadingScreen />
+    return <LoadingScreen />;
   }
 
   if (boardsError) {
-    return <ErrorScreen refetch={() => refetch()} />
+    return <ErrorScreen refetch={() => refetch()} />;
   }
 
   const boards = boardsData.boards;

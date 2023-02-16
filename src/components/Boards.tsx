@@ -3,24 +3,49 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 
 import TaskComponent from './Task';
 import BoardComponent from './Board';
+import NewBoard from './NewBoard';
 import NewTask from './NewTask';
-import { IconPlusDotted } from '../icons';
 
-import { Board, Task, CreateTaskArgs, MoveTaskArgs, DeleteTaskArgs, CreateBoardArgs } from '../types';
+import {
+  Board,
+  Task,
+  CreateTaskArgs,
+  MoveTaskArgs,
+  DeleteTaskArgs,
+  CreateBoardArgs,
+} from '../types';
 
 import './Boards.css';
 
-function reorder(tasks: TasksData, srcBoard: string, startIndex: number, endIndex: number) {
+type BoardsData = { [key: string]: Board };
+type TasksData = { [key: string]: Task[] };
+
+export type BoardsProps = {
+  data: Board[];
+  timestamp: string;
+  moveTask: (data: MoveTaskArgs) => void;
+  deleteTask: (data: DeleteTaskArgs) => void;
+  createTask: (data: CreateTaskArgs) => void;
+  createBoard: (data: CreateBoardArgs) => void;
+};
+
+function reorder(tasks: TasksData, srcBoard: string, srcIndex: number, dstIndex: number) {
   const list = tasks[srcBoard];
   const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  const newTasks = {...tasks};
+  const [removed] = result.splice(srcIndex, 1);
+  result.splice(dstIndex, 0, removed);
+  const newTasks = { ...tasks };
   newTasks[srcBoard] = result;
   return newTasks;
 }
 
-function move(tasks: TasksData, srcBoard: string, dstBoard: string, srcIndex: number, dstIndex: number) {
+function move(
+  tasks: TasksData,
+  srcBoard: string,
+  dstBoard: string,
+  srcIndex: number,
+  dstIndex: number,
+) {
   const source = tasks[srcBoard];
   const destination = tasks[dstBoard];
   const sourceClone = Array.from(source);
@@ -33,55 +58,49 @@ function move(tasks: TasksData, srcBoard: string, dstBoard: string, srcIndex: nu
   result[srcBoard] = sourceClone;
   result[dstBoard] = destClone;
 
-  let newTasks = {...tasks};
+  let newTasks = { ...tasks };
   newTasks[srcBoard] = result[srcBoard];
   newTasks[dstBoard] = result[dstBoard];
 
   return newTasks;
 }
 
-function getInitialBoards(data: Board[]): BoardsData {
-  return data.reduce((res, item) => ({
-    ...res,
-    [item.id]: item,
-  }), {});
+function toBoardsData(data: Board[]): BoardsData {
+  return data.reduce(
+    (res, item) => ({
+      ...res,
+      [item.id]: item,
+    }),
+    {},
+  );
 }
 
-function getInitialTasks(data: Board[]): TasksData {
-  return data.reduce((res, item) => ({
-    ...res,
-    [item.id]: item.tasks.slice().sort((a, b) => a.position - b.position),
-  }), {});
-}
-
-type BoardsData = { [key: string]: Board }
-type TasksData = { [key: string]: Task[] }
-
-export type BoardsProps = {
-  data: Board[]
-  timestamp: string
-  moveTask: (data: MoveTaskArgs) => void
-  deleteTask: (data: DeleteTaskArgs) => void
-  createTask: (data: CreateTaskArgs) => void
-  createBoard: (data: CreateBoardArgs) => void
+function toTasksData(data: Board[]): TasksData {
+  return data.reduce(
+    (res, item) => ({
+      ...res,
+      [item.id]: item.tasks.slice().sort((a, b) => a.position - b.position),
+    }),
+    {},
+  );
 }
 
 function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard }: BoardsProps) {
-  const initialBoards = getInitialBoards(data);
-  const initialTasks = getInitialTasks(data);
-  
-  const [tasks, setTasks] = useState(initialTasks)
-  const [boards, setBoards] = useState(initialBoards)
+  const initialBoards = toBoardsData(data);
+  const initialTasks = toTasksData(data);
+
+  const [tasks, setTasks] = useState(initialTasks);
+  const [boards, setBoards] = useState(initialBoards);
 
   useEffect(() => {
-    setTasks(getInitialTasks(data));
-    setBoards(getInitialBoards(data));
+    setTasks(toTasksData(data));
+    setBoards(toBoardsData(data));
   }, [data, timestamp]);
 
   const idx2board = Object.keys(boards);
 
   function addTask({ boardId, description, badge }: CreateTaskArgs) {
-    const newState = { ...tasks };
+    const newTasks = { ...tasks };
     const newTask = {
       id: '__',
       boardId,
@@ -89,8 +108,8 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
       badge,
       position: boards[boardId].tasks.length,
     };
-    newState[boardId] = [...newState[boardId], newTask];
-    setTasks(newState);
+    newTasks[boardId] = [...newTasks[boardId], newTask];
+    setTasks(newTasks);
     createTask({
       boardId,
       description,
@@ -98,17 +117,10 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
     });
   }
 
-  function submitTask(boardId: string, value: string) {
-    addTask({
-      boardId: boardId,
-      description: value,
-    });
-  }
-
   function removeTask(boardIdx: number, taskIdx: number, taskId: string) {
-    const newState = {...tasks};
-    newState[idx2board[boardIdx]].splice(taskIdx, 1);
-    setTasks(newState);
+    const newTasks = { ...tasks };
+    newTasks[idx2board[boardIdx]].splice(taskIdx, 1);
+    setTasks(newTasks);
     deleteTask({ taskId });
   }
 
@@ -124,25 +136,13 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
     if (srcBoard === dstBoard && source.index === destination.index) {
       return;
     }
-    
+
     let newTasks: TasksData = tasks;
 
     if (srcBoard === dstBoard) {
-      newTasks = reorder(
-        tasks,
-        srcBoard,
-        source.index,
-        destination.index,
-      );
-    }
-    else {
-      newTasks = move(
-        tasks,
-        srcBoard,
-        dstBoard,
-        source.index,
-        destination.index,
-      );
+      newTasks = reorder(tasks, srcBoard, source.index, destination.index);
+    } else {
+      newTasks = move(tasks, srcBoard, dstBoard, source.index, destination.index);
     }
 
     setTasks(newTasks);
@@ -171,18 +171,13 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
             {(provided, snapshot) => (
               <BoardComponent
                 board={boards[boardId]}
+                divRef={provided.innerRef}
+                divClassName={snapshot.isDraggingOver ? 'is-over' : ''}
+                divProps={provided.droppableProps}
               >
-                <div
-                  ref={provided.innerRef}
-                  className={`tasks ${snapshot.isDraggingOver ? 'is-over' : ''}`}
-                  {...provided.droppableProps}
-                >
+                <>
                   {tasks[boardId].map((task, taskIdx) => (
-                    <Draggable
-                      key={task.id}
-                      draggableId={task.id}
-                      index={taskIdx}
-                    >
+                    <Draggable key={task.id} draggableId={task.id} index={taskIdx}>
                       {(provided, snapshot) => (
                         <TaskComponent
                           task={task}
@@ -197,19 +192,20 @@ function Boards({ data, timestamp, moveTask, deleteTask, createTask, createBoard
                   ))}
                   {provided.placeholder}
                   <NewTask
-                    submit={(value: string) => submitTask(boardId, value)}
+                    submit={(value: string) =>
+                      addTask({
+                        boardId,
+                        description: value,
+                      })
+                    }
                   />
-                </div>
+                </>
               </BoardComponent>
             )}
           </Droppable>
         ))}
       </DragDropContext>
-      <div className="new-board">
-        <div className="icon large" onClick={addBoard}>
-          {IconPlusDotted}
-        </div>
-      </div>
+      <NewBoard submit={addBoard} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 .board {
   flex: 1;
   min-height: 200px;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
   padding: var(--gap-small);
@@ -25,4 +26,13 @@
 .header h3 {
   font-size: var(--font-sz-regular);
   line-height: 16px;
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+}
+
+.tasks.is-over {
+  background-color: var(--clr-yellow-300);
 }

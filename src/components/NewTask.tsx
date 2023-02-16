@@ -4,10 +4,10 @@ import { IconPlusCircleFill } from '../icons';
 import './NewTask.css';
 
 type NewTaskProps = {
-  submit: (value: string) => void
+  submit: (value: string) => void;
 };
 
-export default function({ submit }: NewTaskProps) {
+export default function ({ submit }: NewTaskProps) {
   const [value, setValue] = useState('');
   return (
     <div className="new-task">
@@ -16,8 +16,8 @@ export default function({ submit }: NewTaskProps) {
         value={value}
         placeholder="Add task"
         enterKeyHint="send"
-        onChange={e => setValue(e.target.value)}
-        onKeyDown={e => {
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
           if (e.key === 'Enter') {
             submit(value);
             setValue('');
@@ -35,4 +35,4 @@ export default function({ submit }: NewTaskProps) {
       </button>
     </div>
   );
-};
+}

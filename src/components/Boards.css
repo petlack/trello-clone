@@ -1,4 +1,3 @@
-
 .app {
   width: 100vw;
   min-height: 100vh;
@@ -7,33 +6,9 @@
 
 .boards {
   display: flex;
-  flex-direction: row;
+  flex-flow: wrap;
   gap: var(--gap-medium);
   padding: var(--gap-medium);
   align-items: flex-start;
-}
-
-.new-board {
-  flex: 0.25;
-  min-height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--clr-bw-300);
-  border-radius: 8px;
-  color: var(--clr-bw-400);
-  cursor: pointer;
-}
-
-.new-board:hover {
-  color: var(--clr-bw-600);
-}
-
-.tasks {
-  display: flex;
-  flex-direction: column;
-}
-
-.tasks.is-over {
-  background-color: var(--clr-yellow-300);
+  align-content: flex-start;
 }
